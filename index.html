@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OBMC LP</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Small custom styles (internal CSS) -->
+  <style>
+    :root { --navy: #0b4a82; --pink: #f4a9c9; --sun: #fbe7a1; --mint: #bfe6da; --sky: #cfe8f7; --soft: #fdf8ff; --ink: #2b3350; --line: #eceaf3; }
+    html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+    body { color: var(--ink); font-family: "Poppins", "Segoe UI", system-ui, sans-serif; font-weight: 300; line-height: 1.7; }
+    h1, h2, h3 { color: var(--navy); font-weight: 600; letter-spacing: -0.01em; }
+    .navbar { border-bottom: 1px solid var(--line); }
+    .nav-link { color: var(--ink); font-weight: 400; }
+    .nav-link.active { color: var(--navy) !important; font-weight: 600; border-bottom: 2px solid var(--pink); }
+    .stripe { height: 5px; background: linear-gradient(90deg, var(--pink), var(--sun), var(--mint), var(--sky)); }
+    .btn { font-weight: 500; border-radius: 50rem; padding: 0.6rem 1.75rem; }
+    .btn-primary { background: var(--navy); border-color: var(--navy); }
+    .btn-primary:hover { background: #094073; border-color: #083a68; }
+    .btn-outline-primary { color: var(--navy); border-color: var(--navy); }
+    .btn-outline-primary:hover { background: var(--navy); border-color: var(--navy); }
+    /* Colored bands */
+    .hero { background: var(--navy); color: #fff; padding: 5rem 0; }
+    .page-hero { padding: 3.5rem 0; }
+    .hero h1 { color: #fff; letter-spacing: 0.02em; }
+    .hero .lead { color: rgba(255, 255, 255, 0.85); }
+    .band-navy { background: var(--navy); color: #fff; }
+    .band-navy h2, .band-navy h3 { color: #fff; }
+    .band-pink { background: var(--pink); }
+    .band-soft { background: var(--soft); }
+    .stat-num { font-size: clamp(2rem, 5vw, 3rem); font-weight: 600; line-height: 1.1; color: var(--navy); }
+    /* Colored tiles and cards */
+    .tile { border-radius: 1rem; padding: 1.75rem 1.5rem; height: 100%; }
+    .tile h3 { font-size: 1.15rem; }
+    .tile a { color: inherit; font-weight: 500; }
+    .tile-pink { background: var(--pink); }
+    .tile-sun { background: var(--sun); }
+    .tile-mint { background: var(--mint); }
+    .tile-sky { background: var(--sky); }
+    .tile-navy { background: var(--navy); color: #fff; }
+    .tile-navy h3 { color: #fff; }
+    .tile-navy .text-muted { color: rgba(255, 255, 255, 0.75) !important; }
+    .card { border: 0; border-radius: 1rem; }
+    .card-img-top { border-radius: 0; }
+    .card-body { padding: 1.25rem; }
+    .photo { background: var(--soft); border-radius: 1rem; }
+    .bg-light { background: var(--soft) !important; }
+    .form-control, .form-select { border-radius: 0.75rem; border-color: var(--line); padding: 0.7rem 1rem; }
+    .form-control:focus, .form-select:focus { border-color: var(--navy); box-shadow: 0 0 0 0.2rem rgba(11, 74, 130, 0.12); }
+    .form-label { font-weight: 400; }
+    .table { --bs-table-bg: transparent; }
+    .table th { font-weight: 600; color: var(--navy); }
+    .table > :not(caption) > * > * { padding: 0.9rem 0.75rem; }
+    main.container { padding-top: 4rem; padding-bottom: 4rem; }
+    ::selection { background: var(--pink); }
+    /* Polish: soft shapes, hover lift, accents */
+    .navbar { box-shadow: 0 2px 12px rgba(11, 74, 130, 0.06); }
+    .hero { position: relative; overflow: hidden; }
+    .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; }
+    .hero::before { width: 360px; height: 360px; background: var(--pink); opacity: 0.22; top: -120px; right: -80px; }
+    .hero::after { width: 240px; height: 240px; background: var(--sky); opacity: 0.2; bottom: -90px; left: -60px; }
+    .hero .container { position: relative; z-index: 1; }
+    .page-hero::before { width: 220px; height: 220px; top: -90px; right: -40px; }
+    .page-hero::after { width: 140px; height: 140px; bottom: -60px; left: 8%; }
+    .hero .photo { border-radius: 1.5rem; box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.25); }
+    h2.text-uppercase::after { content: ""; display: block; width: 48px; height: 4px; border-radius: 4px; background: var(--pink); margin: 0.75rem 0 0; }
+    h2.text-center::after { margin: 0.75rem auto 0; }
+    .tile, .card, .btn { transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
+    .tile:hover, .card:hover { transform: translateY(-4px); box-shadow: 0 0.75rem 1.5rem rgba(11, 74, 130, 0.14); }
+    .btn-light:hover { background: var(--sun); }
+    .img-thumbnail { border: 4px solid var(--pink); padding: 0.25rem; }
+    footer { border-top: 5px solid; border-image: linear-gradient(90deg, var(--pink), var(--sun), var(--mint), var(--sky)) 1; }
+    /* Keep photo boxes a tidy size, whatever size the photo is */
+    .photo { object-fit: cover; }
+    .hero { padding: 4rem 0; }
+    .hero .photo { width: 100%; max-height: 380px; }
+    .card-img-top { width: 100%; height: 200px; object-fit: cover; }
+    .col-md-6 > .photo { width: 100%; max-height: 360px; }
+    @media (prefers-reduced-motion: reduce) { .tile, .card, .btn { transition: none; } .tile:hover, .card:hover { transform: none; } }
+  </style>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#mynavbar" data-bs-offset="80" tabindex="0">
+ <!-- NAVIGATION BAR -->
+  <nav class="navbar navbar-expand-md bg-white sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center fw-bold" href="#home">
+
+
+        <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/7c5f2399-faf0-4b55-abef-0d5a936d20c5/OBMC+-+60TH+LOGO+-+DIAMOND+SLOGAN+-+APPROVED+-+2026+FA_OBMC+-+COLOR+HORIZONTAL.png?format=1500w" alt="O.B. Montessori Center logo" height="44">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mynavbar">
+        <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#home">Home Page</a></li>
+        <li class="nav-item"><a class="nav-link" href="#courses">Courses Offer</a></li>
+        <li class="nav-item"><a class="nav-link" href="#enroll">Enroll Now</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About the Group Member</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="stripe"></div>
+
+ <!-- HOME-->
+  <div id="home">
+  <header class="hero text-center">
+    <div class="container">
+      <h1 class="display-3 fw-bold text-uppercase">A Diamond Legacy of Learning</h1>
+      <p class="lead mx-auto mb-4" style="max-width: 640px;">
+        
+        Sixty years of Montessori education in the Philippines, from Pre-K to Grade 12.
+      </p>
+      <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mb-5">
+        <a href="#enroll" class="btn btn-light btn-lg">Enroll now</a>
+        <a href="#courses" class="btn btn-outline-light btn-lg">See our courses</a>
+      </div>
+      <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/308f6785-a4ae-4970-a7ef-8a3236344bff/JAR_2646a.jpg" alt="OBMC students" class="img-fluid photo">
+    </div>
+  </header>
+
+  <!--PROGRAMS -->
+  <section class="container py-5 mt-4">
+    <h2 class="text-center text-uppercase mb-4">Our programs</h2>
+    <div class="row g-3">
+      <div class="col-sm-6 col-lg">
+        <div class="tile tile-pink">
+          <h3>Casa</h3>
+          <p class="text-muted mb-3">Ages 3 to 5</p>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#modal-casa">Learn more</a>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg">
+        <div class="tile tile-sun">
+          <h3>Primary Grade School</h3>
+          <p class="text-muted mb-3">Ages 6 to 8</p>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#modal-primary">Learn more</a>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg">
+        <div class="tile tile-mint">
+          <h3>Intermediate Grade School</h3>
+          <p class="text-muted mb-3">Ages 9 to 12</p>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#modal-intermediate">Learn more</a>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg">
+        <div class="tile tile-sky">
+          <h3>Junior High School</h3>
+          <p class="text-muted mb-3">Ages 13 to 16</p>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#modal-jhs">Learn more</a>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg">
+        <div class="tile tile-navy">
+          <h3>Senior High School</h3>
+          <p class="text-muted mb-3">Ages 17 to 18</p>
+          <a href="#" data-bs-toggle="modal" data-bs-target="#modal-shs">Learn more</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FACTS -->
+  <section class="band-pink py-5">
+    <div class="container">
+      <div class="row text-center g-4">
+      <div class="col-6 col-md-3"><div class="stat-num">60</div><p class="mb-0">years of Montessori education</p></div>
+      <div class="col-6 col-md-3"><div class="stat-num">5</div><p class="mb-0">campuses</p></div>
+      <div class="col-6 col-md-3"><div class="stat-num">Pre-K to 12</div><p class="mb-0">grade levels</p></div>
+      <div class="col-6 col-md-3"><div class="stat-num">Ages 3 to 18</div><p class="mb-0">students we guide</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT OBMC -->
+  <section class="container py-5 mt-4">
+    <div class="row align-items-center g-5">
+      <div class="col-md-6">
+        <img src= "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeQoweakWZcNYgNjJxG_zR3mIrr87f723S5h9ohoHTdA&s=10" alt="About OBMC" class="img-fluid photo">
+      </div>
+      <div class="col-md-6">
+        <h2 class="text-uppercase mb-3">About OBMC</h2>
+        <!--CAPTION -->
+        <p>A co-educational school that guides children through Dr. Maria Montessori's holistic approach, mixing time-tested methods with fresh ideas. It is a strong alternative to international schools.</p>
+        <h3 class="h5 mt-4">Our mission</h3>
+        <!-- CAPTION -->
+        <p>To help students grow into confident, self-driven people who can succeed, lead, and make a difference in a changing world.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAMPUSES -->
+  <section class="band-soft py-5">
+    <div class="container">
+      <h2 class="text-center text-uppercase mb-4">Our campuses</h2>
+      <div class="row g-4">
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-pink">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/51bf9a1b-c4fc-42b1-abe6-945af52780da/OBMC+MONTESSORI+AN+1+-+AY+2026+FA.jpg" class="card-img-top img-fluid photo" alt="OBMC Angeles">
+          <div class="card-body">
+
+            <h3 class="h5">OBMC Angeles</h3>
+            <p class="text-muted small mb-1">Angeles City, Pampanga</p>
+            <p class="mb-0">A lively Montessori community in Pampanga.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-sun">
+          <img src="https://obmontessori.orangeapps.ph/landing/obmontessori/images/FV%20Facade.jpg" class="card-img-top img-fluid photo" alt="OBMC Fairview">
+          <div class="card-body">
+
+            <h3 class="h5">OBMC Fairview</h3>
+            <p class="text-muted small mb-1">Fairview, Quezon City</p>
+            <p class="mb-0">Quality Montessori learning for young families.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-mint">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/affba656-d015-4b96-a8ba-3ef5bbbc2c39/OBMC+MONTESSORI+GH+-+AY+2026+FA.jpg" class="card-img-top img-fluid photo" alt="OBMC Greenhills">
+          <div class="card-body">
+
+            <h3 class="h5">OBMC Greenhills</h3>
+            <p class="text-muted small mb-1">Greenhills, San Juan City</p>
+            <!-- EDIT CAPTION -->
+            <p class="mb-0">A creative, fun space that builds curiosity and service.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-sky">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/352a0ac0-0b3f-4d5f-af98-59c07cc35012/OBMC+MONTESSORI+LP+2+-+AY+2026+FA.jpg" class="card-img-top img-fluid photo" alt="OBMC Las Pi&ntilde;as">
+          <div class="card-body">
+
+            <h3 class="h5">OBMC Las Pi&ntilde;as</h3>
+            <p class="text-muted small mb-1">B.F. Homes, Las Pi&ntilde;as City</p>
+            <!-- EDIT CAPTION -->
+            <p class="mb-0">A campus that celebrates the city's culture and history.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-navy">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/97d122d3-7288-49cb-bcdd-3c210e3366f8/OBMC+MONTESSORI+SA+1+-+AY+2026+FA.jpg" class="card-img-top img-fluid photo" alt="OBMC Sta. Ana">
+          <div class="card-body">
+            <h3 class="h5">OBMC Sta. Ana</h3>
+            <p class="text-muted small mb-1">Sta. Ana, Manila City</p>
+            <!-- EDIT CAPTION -->
+            <p class="mb-0">A heritage-district school known for strong academics.</p>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMISSON -->
+  <section class="band-navy py-5 text-center">
+    <div class="container">
+      <h2 class="text-uppercase mb-3">Admission</h2>
+      <p class="mb-4">Ready to join the OBMC community?</p>
+      <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+        <a href="#enroll" class="btn btn-light btn-lg">Enroll now</a>
+        <a href="#contact" class="btn btn-outline-light btn-lg">Contact us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- COURSE DETAILS -->
+  <div class="modal fade" id="modal-casa" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 overflow-hidden">
+        <div class="modal-header border-0 tile-pink">
+          <h3 class="modal-title h4">Casa</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-unstyled mb-3">
+            <li><span class="fw-bold">Ages:</span> 3 to 5</li>
+          </ul>
+            <!-- CAPTION -->
+          <p>Children from 3 to 5 learn from their surroundings by choice, and that is how they begin to grow into their own person. Classrooms use simple shapes and colors that bring nature indoors, like being wrapped in a park with trees, ground, and sun.</p>
+          <p class="text-muted small mb-0">Apply online by choosing your preferred campus.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <a href="#enroll" class="btn btn-primary" data-bs-dismiss="modal">Enroll now</a>
+          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-primary" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 overflow-hidden">
+        <div class="modal-header border-0 tile-sun">
+          <h3 class="modal-title h4">Primary Grade School</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-unstyled mb-3">
+            <li><span class="fw-bold">Ages:</span> 6 to 8</li>
+          </ul>
+          <!--CAPTION -->
+          <p>A carefully prepared classroom supports children's minds and bodies as they grow more independent between ages 6 and 8.</p>
+          <p class="text-muted small mb-0">Apply online by choosing your preferred campus.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <a href="#enroll" class="btn btn-primary" data-bs-dismiss="modal">Enroll now</a>
+          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-intermediate" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 overflow-hidden">
+        <div class="modal-header border-0 tile-mint">
+          <h3 class="modal-title h4">Intermediate Grade School</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-unstyled mb-3">
+            <li><span class="fw-bold">Ages:</span> 9 to 12</li>
+          </ul>
+          <!-- CAPTION -->
+          <p>Students aged 9 to 12 learn about their shared responsibility to care for life and the environment.</p>
+          <p class="text-muted small mb-0">Apply online by choosing your preferred campus.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <a href="#enroll" class="btn btn-primary" data-bs-dismiss="modal">Enroll now</a>
+          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-jhs" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 overflow-hidden">
+        <div class="modal-header border-0 tile-sky">
+          <h3 class="modal-title h4">Junior High School</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-unstyled mb-3">
+            <li><span class="fw-bold">Ages:</span> 13 to 16</li>
+          </ul>
+          <!-- CAPTION -->
+          <p>This program supports the emotional, psychological, and social growth of students aged 13 to 16 as they get ready for adult responsibilities.</p>
+          <p class="text-muted small mb-0">Apply online by choosing your preferred campus.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <a href="#enroll" class="btn btn-primary" data-bs-dismiss="modal">Enroll now</a>
+          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-shs" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 overflow-hidden">
+        <div class="modal-header border-0 tile-navy">
+          <h3 class="modal-title h4">Senior High School</h3>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-unstyled mb-3">
+            <li><span class="fw-bold">Ages:</span> 17 to 18</li>
+          </ul>
+          <!-- CAPTION -->
+          <p>Students aged 17 and 18 gain the skills and knowledge they need for future success.</p>
+          <p class="text-muted small mb-0">Apply online by choosing your preferred campus.</p>
+        </div>
+        <div class="modal-footer border-0">
+          <a href="#enroll" class="btn btn-primary" data-bs-dismiss="modal">Enroll now</a>
+          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--COURSES-->
+  </div>
+
+  <!-- COURSES -->
+  <div id="courses">
+  <header class="hero page-hero text-center">
+    <div class="container">
+      <h1 class="display-5 fw-bold text-uppercase">Courses offer</h1>
+      <p class="lead mb-0">From Casa to Senior High School</p>
+    </div>
+  </header>
+
+  <main class="container py-5">
+
+    <div class="row g-4">
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-pink">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/48d1c8ef-6412-4b7b-81fe-a50d7f1189d6/Casa+-+Admission+Requirements" class="card-img-top img-fluid photo" alt="Casa">
+          <div class="card-body">
+            <h3 class="h5 fw-bold">Casa</h3>
+            <!-- EDIT CAPTION -->
+            <p class="text-muted mb-3">Ages 3 to 5</p>
+            <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-casa">Learn more</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-sun">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgMgNONMgnDfMAc1A2UW1V2FsaQo9t-82wNwLlr4rfJQ&s=10" class="card-img-top img-fluid photo" alt="Primary Grade School">
+          <div class="card-body">
+            <h3 class="h5 fw-bold">Primary Grade School</h3>
+            <!-- EDIT CAPTION -->
+            <p class="text-muted mb-3">Ages 6 to 8</p>
+            <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-primary">Learn more</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-mint">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/308f6785-a4ae-4970-a7ef-8a3236344bff/JAR_2646a.jpg" class="card-img-top img-fluid photo" alt="Intermediate Grade School">
+          <div class="card-body">
+            <h3 class="h5 fw-bold">Intermediate Grade School</h3>
+            <!-- EDIT CAPTION -->
+            <p class="text-muted mb-3">Ages 9 to 12</p>
+            <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-intermediate">Learn more</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-sky">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/4069ea7e-83d6-4367-8825-71aa1ad6b88d/JUNIOR+HIGH+SCHOOL+PROGRAM+-+HERO+IMAGE+-+JAR_3329a.jpg" class="card-img-top img-fluid photo" alt="Junior High School">
+          <div class="card-body">
+            <h3 class="h5 fw-bold">Junior High School</h3>
+            <!-- EDIT CAPTION -->
+            <p class="text-muted mb-3">Ages 13 to 16</p>
+            <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-jhs">Learn more</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="card h-100 overflow-hidden tile-navy">
+          <img src="https://images.squarespace-cdn.com/content/v1/664c7ae50eea9c731b37e817/dd77fda9-d2bd-47aa-9576-830b020639f2/JAR_4005a+%281%29.jpg" class="card-img-top img-fluid photo" alt="Senior High School">
+          <div class="card-body">
+            <h3 class="h5 fw-bold">Senior High School</h3>
+            <!-- EDIT CAPTION -->
+            <p class="text-muted mb-3">Ages 17 to 18</p>
+            <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-shs">Learn more</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <!-- GRADE LEVELS TABLE THING -->
+    <h2 class="h4 mt-5 mb-3">Levels at a glance</h2>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr><th scope="col">#</th><th scope="col">Level</th><th scope="col">Age</th></tr>
+        </thead>
+        <tbody>
+        <tr><th scope="row">1</th><td>Casa</td><td>Ages 3 to 5</td></tr>
+        <tr><th scope="row">2</th><td>Primary Grade School</td><td>Ages 6 to 8</td></tr>
+        <tr><th scope="row">3</th><td>Intermediate Grade School</td><td>Ages 9 to 12</td></tr>
+        <tr><th scope="row">4</th><td>Junior High School</td><td>Ages 13 to 16</td></tr>
+        <tr><th scope="row">5</th><td>Senior High School</td><td>Ages 17 to 18</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  </div>
+
+  <!-- ENROLL -->
+  <div id="enroll">
+  <header class="hero page-hero text-center">
+    <div class="container">
+      <h1 class="display-5 fw-bold text-uppercase">Enroll now</h1>
+      <p class="lead mb-0">Fill out the form and we will get back to you.</p>
+    </div>
+  </header>
+
+  <main class="container py-5" style="max-width: 760px;">
+
+    <!-- THANK YOU MESSAGE AFTER ENROLLED -->
+    <form class="border rounded-4 p-4 bg-white shadow-sm" onsubmit="alert('Thank you! Your enrollment form was sent.'); this.reset(); return false;">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="fname" class="form-label">First name</label>
+          <input type="text" class="form-control form-control-lg" id="fname" placeholder="Enter first name" required>
+        </div>
+        <div class="col-md-6">
+          <label for="lname" class="form-label">Last name</label>
+          <input type="text" class="form-control form-control-lg" id="lname" placeholder="Enter last name" required>
+        </div>
+        <div class="col-md-6">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+        </div>
+        <div class="col-md-6">
+          <label for="bday" class="form-label">Birthdate</label>
+          <input type="date" class="form-control" id="bday" required>
+        </div>
+        <div class="col-md-6">
+          <label for="level" class="form-label">Level</label>
+          <select class="form-select" id="level">
+            <option>Casa</option>
+            <option>Primary Grade School</option>
+            <option>Intermediate Grade School</option>
+            <option>Junior High School</option>
+            <option>Senior High School</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="campus" class="form-label">Campus</label>
+          <select class="form-select" id="campus">
+            <option>Angeles</option>
+            <option>Fairview</option>
+            <option>Greenhills</option>
+            <option>Las Pi&ntilde;as</option>
+            <option>Sta. Ana</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <p class="form-label mb-1">Student type</p>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="stype" id="new" checked>
+            <label class="form-check-label" for="new">New student</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="stype" id="transfer">
+            <label class="form-check-label" for="transfer">Transferee</label>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="updates">
+            <label class="form-check-label" for="updates">Send me school updates</label>
+          </div>
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="agree" required>
+            <label class="form-check-label" for="agree">The information above is correct</label>
+          </div>
+        </div>
+        <div class="col-12 d-grid mt-3">
+          <button type="submit" class="btn btn-primary btn-lg">Submit enrollment</button>
+        </div>
+      </div>
+    </form>
+  </main>
+  </div>
+
+  <!-- ===== CONTACT ===== -->
+  <div id="contact">
+  <header class="hero page-hero text-center">
+    <div class="container">
+      <h1 class="display-5 fw-bold text-uppercase">Contact us</h1>
+      
+    </div>
+  </header>
+
+  <main class="container py-5">
+    <div class="row g-5">
+
+    <!-- SCHOOL CONTACT INFO -->
+      <div class="col-md-6">
+        <h2 class="h4 mb-3">School contact</h2>
+        <div class="tile tile-sky mb-4">
+          <p class="mb-1"><span class="fw-bold">Main line:</span> +63 2 8722 9720 to 26</p>
+          <p class="mb-1"><span class="fw-bold">Email:</span> info@obmontessori.edu.ph</p>
+          <p class="mb-0"><span class="fw-bold">Website:</span> obmontessori.edu.ph</p>
+        </div>
+        </div>
+
+      <!-- CONTACT FORM -->
+      <div class="col-md-6">
+        <h2 class="h4 mb-3">Send us a message</h2>
+        <form onsubmit="alert('Thank you! Your message was sent.'); this.reset(); return false;">
+          <div class="mb-3">
+            <label for="cname" class="form-label">Name</label>
+            <input type="text" class="form-control" id="cname" placeholder="Enter your name" required>
+          </div>
+          <div class="mb-3">
+            <label for="cemail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="cemail" placeholder="Enter your email" required>
+          </div>
+          <div class="mb-3">
+            <label for="msg" class="form-label">Message</label>
+            <textarea class="form-control" id="msg" rows="4" placeholder="Type your message" required></textarea>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Send message</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+  </div>
+
+  <!-- ABOUT THE GROUP MEMBERS -->
+  <div id="about">
+  <header class="hero page-hero text-center">
+    <div class="container">
+      <h1 class="display-5 fw-bold text-uppercase">About the group</h1>
+      <p class="lead mb-0">The students behind this website</p>
+    </div>
+  </header>
+
+  <main class="container py-5">
+    <div class="row g-4">
+      <div class="col-sm-6 col-md-3 text-center">
+        <img src="grace.jpg" alt="Group member 1" class="rounded-circle img-thumbnail mb-3 photo" style="width: 160px; height: 160px; object-fit: cover;">
+        <h3 class="h5 fw-bold">Sofia Rafael</h3>
+        <p class="text-muted small">Main Coder and project manager.</p>
+      </div>
+      <div class="col-sm-6 col-md-3 text-center">
+        <img src="gavin.jpg" alt="Group member 2" class="rounded-circle img-thumbnail mb-3 photo" style="width: 160px; height: 160px; object-fit: cover;">
+        <h3 class="h5 fw-bold">Gavin Abaca</h3>
+        <p class="text-muted small">Information Specialist (basically finds information).</p>
+      </div>
+      <div class="col-sm-6 col-md-3 text-center">
+        <img src="d.jpg" alt="Group member 3" class="rounded-circle img-thumbnail mb-3 photo" style="width: 160px; height: 160px; object-fit: cover;">
+        <h3 class="h5 fw-bold">Denice Cruz</h3>
+      </div>
+      <div class="col-sm-6 col-md-3 text-center">
+        <img src="von.jpg" alt="Group member 4" class="rounded-circle img-thumbnail mb-3 photo" style="width: 160px; height: 160px; object-fit: cover;">
+        <h3 class="h5 fw-bold">Von Blanca</h3>
+        <p class="text-muted small">Assistant coder.</p>
+      </div>
+      </div>
+      <div class="col-sm-6 col-md-3 text-center">
+        <img src="mikay.jpg" alt="Group member 5" class="rounded-circle img-thumbnail mb-3 photo" style="width: 160px; height: 160px; object-fit: cover;">
+        <h3 class="h5 fw-bold">Mikay Alcantara</h3>
+        <p class="text-muted small"> Assistant design Coordinator (helped design the website and how it would look like).</p>
+      </div>
+    </div>
+  </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="band-navy py-4 text-center">
+    <div class="container">
+      <p class="mb-1 fw-bold text-white">O.B. Montessori Center</p>
+      <p class="text-white-50 small mb-1">+63 2 8722 9720 to 26 &bull; info@obmontessori.edu.ph</p>
+      <p class="text-white-50 small mb-0">&copy; 2026 O.B. Montessori Center</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Close the navbar when a link is clicked (for mobile view)
+    document.querySelectorAll(".nav-link").forEach(function (link) {
+      link.addEventListener("click", function () {
+        var menu = document.getElementById("mynavbar");
+        if (menu.classList.contains("show")) { bootstrap.Collapse.getInstance(menu).hide(); }
+      });
+    });
+  </script>
+</body>
+</html>
